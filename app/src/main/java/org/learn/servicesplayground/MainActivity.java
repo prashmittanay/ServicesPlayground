@@ -15,6 +15,7 @@ import android.widget.TextView;
 public class MainActivity extends AppCompatActivity {
     private Button mIntValueButton;
     private Button mAccessProviderButton;
+    private Button mCameraButton;
     private TextView mTextView;
     private IncrementorService mIncrementorService;
     private boolean mBound;
@@ -26,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
         mTextView = findViewById(R.id.textview_int_value);
         mIntValueButton = findViewById(R.id.button_main_int_value);
         mAccessProviderButton = findViewById(R.id.button_main_access_provider);
+        mCameraButton = findViewById(R.id.button_main_camera_service);
         mIntValueButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
@@ -39,6 +41,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getApplicationContext(), AccessContentActivity.class);
+                startActivity(intent);
+            }
+        });
+        mCameraButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), CameraServiceActivity.class);
                 startActivity(intent);
             }
         });
