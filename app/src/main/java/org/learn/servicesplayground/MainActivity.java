@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
     private Button mIntValueButton;
+    private Button mAccessProviderButton;
     private TextView mTextView;
     private IncrementorService mIncrementorService;
     private boolean mBound;
@@ -24,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mTextView = findViewById(R.id.textview_int_value);
         mIntValueButton = findViewById(R.id.button_main_int_value);
+        mAccessProviderButton = findViewById(R.id.button_main_access_provider);
         mIntValueButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
@@ -31,6 +33,13 @@ public class MainActivity extends AppCompatActivity {
                     int num = mIncrementorService.getIntStatus();
                     mTextView.setText(String.valueOf(num));
                 }
+            }
+        });
+        mAccessProviderButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), AccessContentActivity.class);
+                startActivity(intent);
             }
         });
     }
