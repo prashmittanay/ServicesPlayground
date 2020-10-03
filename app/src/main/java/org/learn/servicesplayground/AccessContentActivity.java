@@ -2,7 +2,10 @@ package org.learn.servicesplayground;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -16,7 +19,14 @@ public class AccessContentActivity extends AppCompatActivity {
     private Button mAccessContentButton;
     private EditText mNameEditText;
     private TextView mDepartmentTextView;
-    private static final String EMPLOYEE_NAME = "employee_name";
+    private BroadcastReceiver mDepartmentReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String employeeDepartment = intent.getStringExtra(EmployeeService.EMPLOYEE_DEPARTMENT);
+            mDepartmentTextView.setText("Department for " + mNameEditText.getText().toString() + ": " + employeeDepartment);
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,10 +39,22 @@ public class AccessContentActivity extends AppCompatActivity {
             public void onClick(View view) {
                 String employeeName = mNameEditText.getText().toString();
                 Intent intent = new Intent(getApplicationContext(), EmployeeService.class);
-                intent.putExtra(EMPLOYEE_NAME, employeeName);
+                intent.putExtra(EmployeeService.EMPLOYEE_NAME, employeeName);
                 startService(intent);
                 mDepartmentTextView.setText("Fetching Department for: " +employeeName + " ... ");
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver(mDepartmentReceiver, new IntentFilter(EmployeeService.BROADCAST_EMPLOYEE_DEPARTMENT));
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unregisterReceiver(mDepartmentReceiver);
     }
 }

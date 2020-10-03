@@ -10,9 +10,9 @@ public class EmployeeService extends IntentService {
     private static final String PATH = "employees";
     private static final String URI = "content://" + AUTHORITY + "/" +PATH;
     private static final Uri CONTENT_URI = Uri.parse(URI);
-    private static final String EMPLOYEE_NAME = "employee_name";
-    private static final String EMPLOYEE_DEPARTMENT = "employee_department";
-    private static final String BROADCAST_EMPLOYEE_DEPARTMENT = "org.learn.servicesplayground.EMPLOYEE_DEPARTMENT";
+    public static final String BROADCAST_EMPLOYEE_DEPARTMENT = "org.learn.servicesplayground.EMPLOYEE_DEPARTMENT";
+    public static final String EMPLOYEE_NAME = "employee_name";
+    public static final String EMPLOYEE_DEPARTMENT = "employee_department";
 
     public EmployeeService() {
         super("EmployeeService");
