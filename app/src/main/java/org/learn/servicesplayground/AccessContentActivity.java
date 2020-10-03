@@ -2,6 +2,7 @@ package org.learn.servicesplayground;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -15,6 +16,7 @@ public class AccessContentActivity extends AppCompatActivity {
     private Button mAccessContentButton;
     private EditText mNameEditText;
     private TextView mDepartmentTextView;
+    private static final String EMPLOYEE_NAME = "employee_name";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,16 +27,11 @@ public class AccessContentActivity extends AppCompatActivity {
         mAccessContentButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String name = mNameEditText.getText().toString();
-                String selection = "name = ?";
-                String[] selectionArgs = {name};
-                Cursor query = getContentResolver().query(Uri.parse("content://org.learn.employeemanagement.EmployeeContentProvider/employees"), null,
-                        selection, selectionArgs, null, null);
-
-                if (query.moveToFirst()) {
-                    String department = query.getString(query.getColumnIndex("department"));
-                    mDepartmentTextView.setText("Department of " + name + " is: " + department);
-                }
+                String employeeName = mNameEditText.getText().toString();
+                Intent intent = new Intent(getApplicationContext(), EmployeeService.class);
+                intent.putExtra(EMPLOYEE_NAME, employeeName);
+                startService(intent);
+                mDepartmentTextView.setText("Fetching Department for: " +employeeName + " ... ");
             }
         });
     }
