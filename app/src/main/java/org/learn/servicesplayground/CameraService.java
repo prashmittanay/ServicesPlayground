@@ -38,6 +38,7 @@ public class CameraService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         mCamera = getCameraInstance();
         try {
+            mCamera.setDisplayOrientation(90);
             mCamera.setPreviewTexture(new SurfaceTexture(10));
             mCamera.startPreview();
             mCamera.takePicture(null, null, mPicture);
