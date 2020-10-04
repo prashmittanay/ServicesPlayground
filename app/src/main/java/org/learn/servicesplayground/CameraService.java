@@ -57,7 +57,7 @@ public class CameraService extends Service {
     Camera.PictureCallback mPicture = new Camera.PictureCallback() {
         @Override
         public void onPictureTaken(byte[] data, Camera camera) {
-            File pictureFile = getOutputMediaFile();
+            File pictureFile = FileUtils.getOutputMediaFile();
             camera.stopPreview();
 
             if (pictureFile == null) {
@@ -79,27 +79,6 @@ public class CameraService extends Service {
             releaseCameraInstance();
         }
     };
-
-    private static File getOutputMediaFile() {
-        File mediaStorageDir = new File(
-                Environment
-                        .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-                "test");
-        if (!mediaStorageDir.exists()) {
-            if (!mediaStorageDir.mkdirs()) {
-                Log.d(TAG, "failed to create directory");
-                return null;
-            }
-        }
-        // Create a media file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss")
-                .format(new Date());
-        File mediaFile;
-        mediaFile = new File(mediaStorageDir.getPath() + File.separator
-                + "IMG_" + timeStamp + ".jpg");
-
-        return mediaFile;
-    }
 
     private Camera getCameraInstance() {
         Camera camera = null;

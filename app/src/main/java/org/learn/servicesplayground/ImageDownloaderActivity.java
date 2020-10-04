@@ -21,7 +21,7 @@ public class ImageDownloaderActivity extends AppCompatActivity {
         mDownloadImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                
+
             }
         });
     }
