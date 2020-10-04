@@ -36,5 +36,11 @@
         android:text="Camera Service Example"
         android:id="@+id/button_main_camera_service" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Download Image Service"
+        android:id="@+id/button_main_download_image" />
+
 
 </LinearLayout>

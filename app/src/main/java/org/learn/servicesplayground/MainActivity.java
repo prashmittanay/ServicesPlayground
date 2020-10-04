@@ -16,6 +16,7 @@ public class MainActivity extends AppCompatActivity {
     private Button mIntValueButton;
     private Button mAccessProviderButton;
     private Button mCameraButton;
+    private Button mDownloadImageButton;
     private TextView mTextView;
     private IncrementorService mIncrementorService;
     private boolean mBound;
@@ -28,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
         mIntValueButton = findViewById(R.id.button_main_int_value);
         mAccessProviderButton = findViewById(R.id.button_main_access_provider);
         mCameraButton = findViewById(R.id.button_main_camera_service);
+        mDownloadImageButton = findViewById(R.id.button_main_download_image);
         mIntValueButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
@@ -48,6 +50,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getApplicationContext(), CameraServiceActivity.class);
+                startActivity(intent);
+            }
+        });
+        mDownloadImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), ImageDownloaderActivity.class);
                 startActivity(intent);
             }
         });

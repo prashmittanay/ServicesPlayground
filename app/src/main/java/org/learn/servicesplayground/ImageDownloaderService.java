@@ -2,8 +2,12 @@ package org.learn.servicesplayground;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,39 +30,25 @@ public class ImageDownloaderService extends IntentService {
         if (intent != null) {
             String urlString = intent.getStringExtra(IMAGE_URL);
             File outputFile = FileUtils.getOutputMediaFile();
-            InputStream inputStream = null;
-            FileOutputStream fileOutputStream = null;
 
+            URL imageUrl = null;
             try {
-                URL url = new URL(urlString);
-                inputStream = url.openConnection().getInputStream();
-                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-                fileOutputStream = new FileOutputStream(outputFile.getPath());
-                int next = -1;
-                while ((next = inputStreamReader.read()) != -1) {
-                    fileOutputStream.write(next);
-                }
+                imageUrl = new URL(urlString);
+                Bitmap bitmap = BitmapFactory.decodeStream(imageUrl.openConnection().getInputStream());
+                ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 40, bytes);
+                outputFile.createNewFile();
+                FileOutputStream fo = new FileOutputStream(outputFile);
+                fo.write(bytes.toByteArray());
+                fo.close();
             } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (FileNotFoundException e) {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
-            } finally {
-                if (inputStream != null) {
-                    try {
-                        inputStream.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                if (fileOutputStream != null) {
-                    try {
-                        fileOutputStream.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
             }
+
             publishResults(outputFile.getAbsolutePath());
         }
     }
