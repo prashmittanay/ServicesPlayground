@@ -7,23 +7,29 @@
     android:gravity="center"
     android:orientation="vertical"
     tools:context=".MainActivity">
+    
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Remote Incrementor Service"
+        android:id="@+id/button_main_remote_incrementor" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Incrementer Service Example"
+        android:text="Local Incrementor Service"
         android:id="@+id/button_main_inc_service" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Access Provider"
+        android:text="Access Provider Service"
         android:id="@+id/button_main_access_provider" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Camera Service Example"
+        android:text="Camera Service"
         android:id="@+id/button_main_camera_service" />
 
     <Button
@@ -31,6 +37,4 @@
         android:layout_height="wrap_content"
         android:text="Download Image Service"
         android:id="@+id/button_main_download_image" />
-
-
 </LinearLayout>

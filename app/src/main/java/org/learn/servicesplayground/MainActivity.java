@@ -12,6 +12,7 @@ public class MainActivity extends AppCompatActivity {
     private Button mAccessProviderButton;
     private Button mCameraButton;
     private Button mDownloadImageButton;
+    private Button mRemoteIncrementorButton;
     private TextView mTextView;
     private IncrementorService mIncrementorService;
     private Intent mIncrementorServiceIntent;
@@ -26,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
         mAccessProviderButton = findViewById(R.id.button_main_access_provider);
         mCameraButton = findViewById(R.id.button_main_camera_service);
         mDownloadImageButton = findViewById(R.id.button_main_download_image);
+        mRemoteIncrementorButton = findViewById(R.id.button_main_remote_incrementor);
         mIncremntorServiceButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
@@ -52,6 +54,12 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(getApplicationContext(), ImageDownloaderActivity.class);
                 startActivity(intent);
+            }
+        });
+        mRemoteIncrementorButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                
             }
         });
     }

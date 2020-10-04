@@ -17,7 +17,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".IncrementorActivity"></activity>
+        <activity android:name=".RemoteIncrementorActivity"></activity>
+        <activity android:name=".IncrementorActivity" />
 
         <service
             android:name=".ImageDownloaderService"
