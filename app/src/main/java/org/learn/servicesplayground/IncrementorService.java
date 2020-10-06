@@ -11,6 +11,8 @@ public class IncrementorService extends Service {
     private static final String TAG = "IncrementorService";
     private int mIntValue = 0;
     private final IBinder iBinder = new LocalBinder();
+    private IncrementorClass mIncrementorClass;
+
 
     public class LocalBinder extends Binder {
         IncrementorService getService() {
@@ -25,8 +27,8 @@ public class IncrementorService extends Service {
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "Incrementor Service Created!");
-        IncrementorClass incrementorClass = new IncrementorClass();
-        incrementorClass.execute();
+        mIncrementorClass = new IncrementorClass();
+        mIncrementorClass.execute();
     }
 
     @Override
@@ -37,6 +39,7 @@ public class IncrementorService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        mIncrementorClass.cancel(true);
         Log.d(TAG, "Incrementor Service Destroyed!");
     }
 

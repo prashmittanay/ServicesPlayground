@@ -39,7 +39,6 @@ public class RemoteIncrementorActivity extends AppCompatActivity {
                 }
             }
         });
-        initConnection();
     }
 
     private void initConnection() {
