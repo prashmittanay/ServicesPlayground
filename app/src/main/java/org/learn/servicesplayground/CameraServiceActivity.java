@@ -12,16 +12,20 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.hardware.Camera;
+import android.media.ExifInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import java.io.IOException;
 
 public class CameraServiceActivity extends AppCompatActivity {
@@ -30,14 +34,16 @@ public class CameraServiceActivity extends AppCompatActivity {
     private FrameLayout mServiceFrameLayout;
     private Button mCallImageSeriveButton;
     private TextView mProgressTextView;
-    private Camera mCamera;
-    private CameraPreview mCameraPreview;
     private BroadcastReceiver mCameraBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             mProgressTextView.setText("");
             String pictureUri = intent.getStringExtra(CameraService.PICTURE_URI);
-            //drawImage(pictureUri);
+            try {
+                drawImage(pictureUri);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     };
 
@@ -49,9 +55,9 @@ public class CameraServiceActivity extends AppCompatActivity {
         mServiceFrameLayout = findViewById(R.id.camera_image_view);
         mCallImageSeriveButton = findViewById(R.id.camera_call_service);
         mProgressTextView = findViewById(R.id.camera_process_text);
-        mCamera = CameraService.getCameraInstance();
-        mCameraPreview = new CameraPreview(this, mCamera);
-        mServiceFrameLayout.addView(mCameraPreview);
+        CameraService.mCamera = CameraService.getCameraInstance();
+        CameraService.mCameraPreview = new CameraPreview(this, CameraService.mCamera);
+        mServiceFrameLayout.addView(CameraService.mCameraPreview);
         mCallImageSeriveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -69,15 +75,30 @@ public class CameraServiceActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
+    protected void onStop() {
+        super.onStop();
         unregisterReceiver(mCameraBroadcastReceiver);
     }
 
-    private void drawImage(String pictureUri) {
+    private void drawImage(String pictureUri) throws IOException {
         Bitmap myBitmap = BitmapFactory.decodeFile(pictureUri);
-//        ImageView myImage = findViewById(R.id.camera_image_view);
-//        myImage.setImageBitmap(myBitmap);
+        ExifInterface ei = new ExifInterface(pictureUri);
+        int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION,
+                ExifInterface.ORIENTATION_ROTATE_90);
+
+        myBitmap = rotateImage(myBitmap, 90);
+        ImageView imageView = new ImageView(this);
+        imageView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        mServiceFrameLayout.removeAllViews();
+        mServiceFrameLayout.addView(imageView);
+        imageView.setImageBitmap(myBitmap);
+    }
+
+    public static Bitmap rotateImage(Bitmap source, float angle) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
+                matrix, true);
     }
 
     private void getPermissions() {
@@ -93,17 +114,12 @@ public class CameraServiceActivity extends AppCompatActivity {
         public CameraPreview(Context context, Camera camera) {
             super(context);
             mCamera = camera;
-
-            // Install a SurfaceHolder.Callback so we get notified when the
-            // underlying surface is created and destroyed.
             mHolder = getHolder();
             mHolder.addCallback(this);
-            // deprecated setting, but required on Android versions prior to 3.0
             mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
         }
 
         public void surfaceCreated(SurfaceHolder holder) {
-            // The Surface has been created, now tell the camera where to draw the preview.
             try {
                 mCamera.setDisplayOrientation(90);
                 mCamera.setPreviewDisplay(holder);
@@ -114,34 +130,24 @@ public class CameraServiceActivity extends AppCompatActivity {
         }
 
         public void surfaceDestroyed(SurfaceHolder holder) {
-            // empty. Take care of releasing the Camera preview in your activity.
+            //mCamera.stopPreview();
         }
 
         public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
-            // If your preview can change or rotate, take care of those events here.
-            // Make sure to stop the preview before resizing or reformatting it.
-
-            if (mHolder.getSurface() == null){
-                // preview surface does not exist
+            if (mHolder.getSurface() == null) {
                 return;
             }
-
-            // stop preview before making changes
             try {
                 mCamera.stopPreview();
-            } catch (Exception e){
-                // ignore: tried to stop a non-existent preview
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-
-            // set preview size and make any resize, rotate or
-            // reformatting changes here
-
-            // start preview with new settings
+            //TODO
             try {
                 mCamera.setPreviewDisplay(mHolder);
                 mCamera.startPreview();
 
-            } catch (Exception e){
+            } catch (Exception e) {
                 Log.d(TAG, "Error starting camera preview: " + e.getMessage());
             }
         }

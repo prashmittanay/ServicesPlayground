@@ -1,26 +1,20 @@
 package org.learn.servicesplayground;
 
-import android.app.IntentService;
 import android.app.Service;
 import android.content.Intent;
-import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
-import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
-
 import androidx.annotation.Nullable;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class CameraService extends Service {
     private static final String TAG = "CameraService";
-    private Camera mCamera;
+    public static Camera mCamera;
+    public static CameraServiceActivity.CameraPreview mCameraPreview;
     public static final String BROADCAST_CAMERA_URL = "org.learn.servicesplayground.CAMERA_URL";
     public static final String PICTURE_URI = "picture_uri";
 
@@ -36,15 +30,7 @@ public class CameraService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        mCamera = getCameraInstance();
-        try {
-            mCamera.setDisplayOrientation(90);
-            mCamera.setPreviewTexture(new SurfaceTexture(10));
-            mCamera.startPreview();
-            mCamera.takePicture(null, null, mPicture);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        mCamera.takePicture(null, null, mPicture);
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -64,16 +50,26 @@ public class CameraService extends Service {
                 Log.e(TAG, " >>>> FILE OBJECT NULL");
                 return;
             }
+            FileOutputStream fos = null;
             try {
-                FileOutputStream fos = new FileOutputStream(pictureFile);
+                fos = new FileOutputStream(pictureFile);
                 fos.write(data);
-                fos.close();
+
+
                 publishResults(pictureFile.getAbsolutePath());
 
             } catch (FileNotFoundException e) {
                 e.printStackTrace();              //<-------- show exception
             } catch (IOException e) {
                 e.printStackTrace();              //<-------- show exception
+            } finally {
+                if (fos!= null){
+                    try {
+                        fos.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
 
             releaseCameraInstance();
@@ -90,7 +86,10 @@ public class CameraService extends Service {
         return camera;
     }
 
-    private void releaseCameraInstance() {
+    public static void releaseCameraInstance() {
+        mCamera.stopPreview();
         mCamera.release();
     }
+
+
 }
