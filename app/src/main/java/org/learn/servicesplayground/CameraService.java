@@ -80,7 +80,7 @@ public class CameraService extends Service {
         }
     };
 
-    private Camera getCameraInstance() {
+    public static Camera getCameraInstance() {
         Camera camera = null;
         try {
             camera = Camera.open();

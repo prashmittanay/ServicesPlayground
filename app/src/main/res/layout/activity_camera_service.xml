@@ -8,7 +8,7 @@
     android:orientation="vertical"
     tools:context=".CameraServiceActivity">
 
-    <ImageView
+    <FrameLayout
         android:layout_width="300dp"
         android:layout_height="300dp"
         android:id="@+id/camera_image_view" />
