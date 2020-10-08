@@ -28,7 +28,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         getPermissions();
         mIncrementorServiceIntent = new Intent(this, IncrementorService.class);
-        startService(mIncrementorServiceIntent);
         mIncremntorServiceButton = findViewById(R.id.button_main_inc_service);
         mAccessProviderButton = findViewById(R.id.button_main_access_provider);
         mCameraButton = findViewById(R.id.button_main_camera_service);
@@ -69,12 +68,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        stopService(mIncrementorServiceIntent);
     }
 
     private void getPermissions() {

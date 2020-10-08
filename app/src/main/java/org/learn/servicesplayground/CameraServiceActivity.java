@@ -27,6 +27,7 @@ public class CameraServiceActivity extends AppCompatActivity {
     private TextView mProgressTextView;
     private Intent mCameraServiceIntent;
     private int mDisplayOrientation;
+    private boolean isReleaseRequired = true;
 
     private BroadcastReceiver mCameraBroadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -55,6 +56,7 @@ public class CameraServiceActivity extends AppCompatActivity {
         mCallImageSeriveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                isReleaseRequired = false;
                 mCameraServiceIntent = new Intent(getApplicationContext(), CameraService.class);
                 mCameraServiceIntent.putExtra(CameraService.DISPLAY_ORIENTATION, mDisplayOrientation);
                 startService(mCameraServiceIntent);
@@ -76,6 +78,8 @@ public class CameraServiceActivity extends AppCompatActivity {
         if (mCameraServiceIntent != null) {
             stopService(mCameraServiceIntent);
         }
+        if (isReleaseRequired)
+            CameraUtils.releaseCameraInstance(CameraService.mCamera);
     }
 
     private void drawImage(String pictureUri) throws IOException {

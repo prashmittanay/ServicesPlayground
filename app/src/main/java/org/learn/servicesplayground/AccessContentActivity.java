@@ -19,11 +19,14 @@ public class AccessContentActivity extends AppCompatActivity {
     private Button mAccessContentButton;
     private EditText mNameEditText;
     private TextView mDepartmentTextView;
+    private Intent mEmployeeServiceIntent;
+
     private BroadcastReceiver mDepartmentReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String employeeDepartment = intent.getStringExtra(EmployeeService.EMPLOYEE_DEPARTMENT);
             mDepartmentTextView.setText("Department for " + mNameEditText.getText().toString() + ": " + employeeDepartment);
+            stopService(mEmployeeServiceIntent);
         }
     };
 
@@ -38,9 +41,9 @@ public class AccessContentActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 String employeeName = mNameEditText.getText().toString();
-                Intent intent = new Intent(getApplicationContext(), EmployeeService.class);
-                intent.putExtra(EmployeeService.EMPLOYEE_NAME, employeeName);
-                startService(intent);
+                mEmployeeServiceIntent = new Intent(getApplicationContext(), EmployeeService.class);
+                mEmployeeServiceIntent.putExtra(EmployeeService.EMPLOYEE_NAME, employeeName);
+                startService(mEmployeeServiceIntent);
                 mDepartmentTextView.setText("Fetching Department for: " +employeeName + " ... ");
             }
         });

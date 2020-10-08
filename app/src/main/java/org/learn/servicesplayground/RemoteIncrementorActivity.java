@@ -65,16 +65,16 @@ public class RemoteIncrementorActivity extends AppCompatActivity {
     };
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        unbindService(serviceConnection);
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
         if (iIncrementorService == null) {
             initConnection();
         }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unbindService(serviceConnection);
     }
 }

@@ -32,24 +32,39 @@ public class ImageDownloaderService extends IntentService {
             File outputFile = FileUtils.getOutputMediaFile();
 
             URL imageUrl = null;
+            FileOutputStream fileOutputStream = null;
+            ByteArrayOutputStream byteArrayOutputStream = null;
             try {
                 imageUrl = new URL(urlString);
                 Bitmap bitmap = BitmapFactory.decodeStream(imageUrl.openConnection().getInputStream());
-                ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 40, bytes);
+                byteArrayOutputStream = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 40, byteArrayOutputStream);
                 outputFile.createNewFile();
-                FileOutputStream fo = new FileOutputStream(outputFile);
-                fo.write(bytes.toByteArray());
-                fo.close();
+                fileOutputStream = new FileOutputStream(outputFile);
+                fileOutputStream.write(byteArrayOutputStream.toByteArray());
+                publishResults(outputFile.getAbsolutePath());
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
+            } finally {
+                if (fileOutputStream != null) {
+                    try {
+                        fileOutputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (byteArrayOutputStream != null) {
+                    try {
+                        byteArrayOutputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
-
-            publishResults(outputFile.getAbsolutePath());
         }
     }
 

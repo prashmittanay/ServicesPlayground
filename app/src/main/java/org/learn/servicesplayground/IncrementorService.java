@@ -32,11 +32,6 @@ public class IncrementorService extends Service {
     }
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        return super.onStartCommand(intent, flags, startId);
-    }
-
-    @Override
     public void onDestroy() {
         super.onDestroy();
         mIncrementorClass.cancel(true);
@@ -71,7 +66,7 @@ public class IncrementorService extends Service {
         protected Object doInBackground(Object[] objects) {
             try {
                 while (true) {
-                    Thread.sleep(900);
+                    Thread.sleep(50);
                     mIntValue++;
                 }
             } catch (InterruptedException e) {

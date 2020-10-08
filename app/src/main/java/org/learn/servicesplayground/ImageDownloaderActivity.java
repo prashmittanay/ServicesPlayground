@@ -33,12 +33,14 @@ public class ImageDownloaderActivity extends AppCompatActivity {
     private ImageView mDownloadedImageView;
     private Button mDownloadImageButton;
     private TextView mPendingTextView;
+    private Intent mImageDownloaderServiceIntent;
     private BroadcastReceiver mImageDownloadBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             mPendingTextView.setText("");
             String imagePath = intent.getStringExtra(ImageDownloaderService.IMAGE_PATH);
             drawImage(imagePath);
+            stopService(mImageDownloaderServiceIntent);
         }
     };
     @Override
@@ -58,9 +60,9 @@ public class ImageDownloaderActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 mPendingTextView.setText("Downloading Image ... ");
-                Intent intent = new Intent(getApplicationContext(), ImageDownloaderService.class);
-                intent.putExtra(ImageDownloaderService.IMAGE_URL, "https://i.imgur.com/4nusSJC.jpeg");
-                startService(intent);
+                mImageDownloaderServiceIntent = new Intent(getApplicationContext(), ImageDownloaderService.class);
+                mImageDownloaderServiceIntent.putExtra(ImageDownloaderService.IMAGE_URL, "https://i.imgur.com/4nusSJC.jpeg");
+                startService(mImageDownloaderServiceIntent);
             }
         });
     }

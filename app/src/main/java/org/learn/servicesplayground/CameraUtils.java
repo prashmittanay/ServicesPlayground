@@ -57,7 +57,9 @@ public class CameraUtils {
     }
 
     public static void releaseCameraInstance(Camera camera) {
-        camera.stopPreview();
-        camera.release();
+        if (camera != null) {
+            camera.stopPreview();
+            camera.release();
+        }
     }
 }

@@ -60,28 +60,36 @@ public class CameraService extends Service {
                 Log.e(TAG, " >>>> FILE OBJECT NULL");
                 return;
             }
-            FileOutputStream fos = null;
+            FileOutputStream fileOutputStream = null;
+            ByteArrayOutputStream byteArrayOutputStream = null;
             try {
-                ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, bytes);
+                byteArrayOutputStream = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
                 pictureFile.createNewFile();
-                FileOutputStream fo = new FileOutputStream(pictureFile);
-                fo.write(bytes.toByteArray());
+                fileOutputStream = new FileOutputStream(pictureFile);
+                fileOutputStream.write(byteArrayOutputStream.toByteArray());
                 publishResults(pictureFile.getAbsolutePath());
+                CameraUtils.releaseCameraInstance(mCamera);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
-                if (fos!= null){
+                if (fileOutputStream!= null){
                     try {
-                        fos.close();
+                        fileOutputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (byteArrayOutputStream != null) {
+                    try {
+                        byteArrayOutputStream.close();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
             }
-            CameraUtils.releaseCameraInstance(mCamera);
         }
     };
 }
