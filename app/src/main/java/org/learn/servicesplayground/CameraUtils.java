@@ -7,8 +7,8 @@ import android.hardware.Camera;
 import android.view.Surface;
 
 public class CameraUtils {
-    public static void setCameraDisplayOrientation(Activity activity,
-                                                   int cameraId, android.hardware.Camera camera) {
+    public static int getCameraDisplayOrientation(Activity activity,
+                                                  int cameraId, Camera camera) {
         Camera.CameraInfo info =
                 new android.hardware.Camera.CameraInfo();
         Camera.getCameraInfo(cameraId, info);
@@ -36,7 +36,7 @@ public class CameraUtils {
         } else {
             result = (info.orientation - degrees + 360) % 360;
         }
-        camera.setDisplayOrientation(result);
+        return result;
     }
 
     public static Bitmap rotateImage(Bitmap source, float angle) {

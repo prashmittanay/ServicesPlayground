@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
-import android.media.ExifInterface;
 import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
@@ -20,10 +19,12 @@ import java.io.IOException;
 
 public class CameraService extends Service {
     private static final String TAG = "CameraService";
+    private int mRotation = 0;
     public static Camera mCamera;
     public static CameraServiceActivity.CameraPreview mCameraPreview;
     public static final String BROADCAST_CAMERA_URL = "org.learn.servicesplayground.CAMERA_URL";
     public static final String PICTURE_URI = "picture_uri";
+    public static final String DISPLAY_ORIENTATION = "orientation";
 
     public CameraService() {
         super();
@@ -37,8 +38,9 @@ public class CameraService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        mRotation = intent.getIntExtra(DISPLAY_ORIENTATION, 0);
         mCamera.takePicture(null, null, mPicture);
-        return super.onStartCommand(intent, flags, startId);
+        return START_NOT_STICKY;
     }
 
     private void publishResults(String pictureUri) {
@@ -52,17 +54,8 @@ public class CameraService extends Service {
         @Override
         public void onPictureTaken(byte[] data, Camera camera) {
             File pictureFile = FileUtils.getOutputMediaFile();
-            ExifInterface exifInterface = null;
-            try {
-                exifInterface = new ExifInterface(new ByteArrayInputStream(data));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
             Bitmap bitmap = BitmapFactory.decodeStream(new ByteArrayInputStream(data));
-            bitmap = CameraUtils.rotateImage(bitmap, 90);
-
-
+            bitmap = CameraUtils.rotateImage(bitmap, mRotation);
             if (pictureFile == null) {
                 Log.e(TAG, " >>>> FILE OBJECT NULL");
                 return;
@@ -75,7 +68,6 @@ public class CameraService extends Service {
                 FileOutputStream fo = new FileOutputStream(pictureFile);
                 fo.write(bytes.toByteArray());
                 publishResults(pictureFile.getAbsolutePath());
-
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             } catch (IOException e) {

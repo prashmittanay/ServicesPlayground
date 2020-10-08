@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -24,6 +25,8 @@ public class CameraServiceActivity extends AppCompatActivity {
     private FrameLayout mServiceFrameLayout;
     private Button mCallImageSeriveButton;
     private TextView mProgressTextView;
+    private Intent mCameraServiceIntent;
+    private int mDisplayOrientation;
 
     private BroadcastReceiver mCameraBroadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -52,8 +55,9 @@ public class CameraServiceActivity extends AppCompatActivity {
         mCallImageSeriveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getApplicationContext(), CameraService.class);
-                startService(intent);
+                mCameraServiceIntent = new Intent(getApplicationContext(), CameraService.class);
+                mCameraServiceIntent.putExtra(CameraService.DISPLAY_ORIENTATION, mDisplayOrientation);
+                startService(mCameraServiceIntent);
                 mProgressTextView.setText("Clicking Imaging and Fetching the Results...");
             }
         });
@@ -69,6 +73,9 @@ public class CameraServiceActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         unregisterReceiver(mCameraBroadcastReceiver);
+        if (mCameraServiceIntent != null) {
+            stopService(mCameraServiceIntent);
+        }
     }
 
     private void drawImage(String pictureUri) throws IOException {
@@ -77,6 +84,7 @@ public class CameraServiceActivity extends AppCompatActivity {
         ImageView imageView = new ImageView(this);
         mServiceFrameLayout.addView(imageView);
         imageView.setImageBitmap(myBitmap);
+        ((ViewGroup)mCallImageSeriveButton.getParent()).removeView(mCallImageSeriveButton);
     }
 
     public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback {
@@ -93,7 +101,9 @@ public class CameraServiceActivity extends AppCompatActivity {
 
         public void surfaceCreated(SurfaceHolder holder) {
             try {
-                CameraUtils.setCameraDisplayOrientation(CameraServiceActivity.this, Camera.CameraInfo.CAMERA_FACING_BACK, CameraService.mCamera);
+                mDisplayOrientation = CameraUtils.getCameraDisplayOrientation(CameraServiceActivity.this,
+                        Camera.CameraInfo.CAMERA_FACING_BACK, CameraService.mCamera);
+                mCamera.setDisplayOrientation(mDisplayOrientation);
                 mCamera.setPreviewDisplay(holder);
                 mCamera.startPreview();
             } catch (IOException e) {
@@ -102,7 +112,6 @@ public class CameraServiceActivity extends AppCompatActivity {
         }
 
         public void surfaceDestroyed(SurfaceHolder holder) {
-            //mCamera.stopPreview();
         }
 
         public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
@@ -118,7 +127,6 @@ public class CameraServiceActivity extends AppCompatActivity {
             try {
                 mCamera.setPreviewDisplay(mHolder);
                 mCamera.startPreview();
-
             } catch (Exception e) {
                 Log.d(TAG, "Error starting camera preview: " + e.getMessage());
             }
