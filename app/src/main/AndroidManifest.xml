@@ -25,7 +25,7 @@
             android:exported="false" />
 
         <activity android:name=".ImageDownloaderActivity" />
-        <activity android:name=".CameraServiceActivity" />
+        <activity android:name=".CameraServiceActivity" android:screenOrientation="portrait"/>
 
         <service
             android:name=".CameraService"
