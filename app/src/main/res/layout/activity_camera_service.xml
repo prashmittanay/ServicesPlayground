@@ -18,7 +18,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/camera_call_service"
         android:text="Initiate Camera Service" />
-    
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

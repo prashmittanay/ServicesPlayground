@@ -1,46 +1,37 @@
 package org.learn.servicesplayground;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
-import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 import android.hardware.Camera;
-import android.media.ExifInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import java.io.IOException;
 
 public class CameraServiceActivity extends AppCompatActivity {
     private static final String TAG = "CameraServiceActivity";
-    //private ImageView mServiceImageView;
     private FrameLayout mServiceFrameLayout;
     private Button mCallImageSeriveButton;
     private TextView mProgressTextView;
+
     private BroadcastReceiver mCameraBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            mProgressTextView.setText("");
             String pictureUri = intent.getStringExtra(CameraService.PICTURE_URI);
             try {
                 drawImage(pictureUri);
+                mProgressTextView.setText("");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -51,13 +42,13 @@ public class CameraServiceActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera_service);
-        getPermissions();
         mServiceFrameLayout = findViewById(R.id.camera_image_view);
         mCallImageSeriveButton = findViewById(R.id.camera_call_service);
         mProgressTextView = findViewById(R.id.camera_process_text);
-        CameraService.mCamera = CameraService.getCameraInstance();
+        CameraService.mCamera = CameraUtils.getCameraInstance();
         CameraService.mCameraPreview = new CameraPreview(this, CameraService.mCamera);
         mServiceFrameLayout.addView(CameraService.mCameraPreview);
+
         mCallImageSeriveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -82,29 +73,10 @@ public class CameraServiceActivity extends AppCompatActivity {
 
     private void drawImage(String pictureUri) throws IOException {
         Bitmap myBitmap = BitmapFactory.decodeFile(pictureUri);
-        ExifInterface ei = new ExifInterface(pictureUri);
-        int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION,
-                ExifInterface.ORIENTATION_ROTATE_90);
-
-        myBitmap = rotateImage(myBitmap, 90);
-        ImageView imageView = new ImageView(this);
-        imageView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         mServiceFrameLayout.removeAllViews();
+        ImageView imageView = new ImageView(this);
         mServiceFrameLayout.addView(imageView);
         imageView.setImageBitmap(myBitmap);
-    }
-
-    public static Bitmap rotateImage(Bitmap source, float angle) {
-        Matrix matrix = new Matrix();
-        matrix.postRotate(angle);
-        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
-                matrix, true);
-    }
-
-    private void getPermissions() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-        }
     }
 
     public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback {
@@ -121,7 +93,7 @@ public class CameraServiceActivity extends AppCompatActivity {
 
         public void surfaceCreated(SurfaceHolder holder) {
             try {
-                mCamera.setDisplayOrientation(90);
+                CameraUtils.setCameraDisplayOrientation(CameraServiceActivity.this, Camera.CameraInfo.CAMERA_FACING_BACK, CameraService.mCamera);
                 mCamera.setPreviewDisplay(holder);
                 mCamera.startPreview();
             } catch (IOException e) {

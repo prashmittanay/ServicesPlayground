@@ -2,10 +2,17 @@ package org.learn.servicesplayground;
 
 import android.app.Service;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.hardware.Camera;
+import android.media.ExifInterface;
+import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -40,11 +47,21 @@ public class CameraService extends Service {
         sendBroadcast(intent);
     }
 
-    Camera.PictureCallback mPicture = new Camera.PictureCallback() {
+    private Camera.PictureCallback mPicture = new Camera.PictureCallback() {
+        @RequiresApi(api = Build.VERSION_CODES.N)
         @Override
         public void onPictureTaken(byte[] data, Camera camera) {
             File pictureFile = FileUtils.getOutputMediaFile();
-            camera.stopPreview();
+            ExifInterface exifInterface = null;
+            try {
+                exifInterface = new ExifInterface(new ByteArrayInputStream(data));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
+            Bitmap bitmap = BitmapFactory.decodeStream(new ByteArrayInputStream(data));
+            bitmap = CameraUtils.rotateImage(bitmap, 90);
+
 
             if (pictureFile == null) {
                 Log.e(TAG, " >>>> FILE OBJECT NULL");
@@ -52,16 +69,17 @@ public class CameraService extends Service {
             }
             FileOutputStream fos = null;
             try {
-                fos = new FileOutputStream(pictureFile);
-                fos.write(data);
-
-
+                ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, bytes);
+                pictureFile.createNewFile();
+                FileOutputStream fo = new FileOutputStream(pictureFile);
+                fo.write(bytes.toByteArray());
                 publishResults(pictureFile.getAbsolutePath());
 
             } catch (FileNotFoundException e) {
-                e.printStackTrace();              //<-------- show exception
+                e.printStackTrace();
             } catch (IOException e) {
-                e.printStackTrace();              //<-------- show exception
+                e.printStackTrace();
             } finally {
                 if (fos!= null){
                     try {
@@ -71,25 +89,7 @@ public class CameraService extends Service {
                     }
                 }
             }
-
-            releaseCameraInstance();
+            CameraUtils.releaseCameraInstance(mCamera);
         }
     };
-
-    public static Camera getCameraInstance() {
-        Camera camera = null;
-        try {
-            camera = Camera.open();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return camera;
-    }
-
-    public static void releaseCameraInstance() {
-        mCamera.stopPreview();
-        mCamera.release();
-    }
-
-
 }
